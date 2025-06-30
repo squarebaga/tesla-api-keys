@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tesla API Key Server</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .tesla-logo {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        .links {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .link-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .link-item:last-child {
+            border-bottom: none;
+        }
+        .link-item a {
+            color: #4fc3f7;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .link-item a:hover {
+            color: #29b6f6;
+            text-decoration: underline;
+        }
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="tesla-logo">🚗⚡</div>
+            <h1>Tesla API Key Server</h1>
+            <p>为Tesla Fleet API集成托管公钥文件</p>
+        </div>
+        
+        <div class="status" id="status">
+            <p>🔍 正在检查公钥状态...</p>
+        </div>
+        
+        <div class="links">
+            <h3>📂 可用端点</h3>
+            
+            <div class="link-item">
+                <span>🔑 Tesla公钥 (PEM格式)</span>
+                <a href="/.well-known/appspecific/com.tesla.3p.public-key.pem" target="_blank">
+                    查看公钥
+                </a>
+            </div>
+            
+            <div class="link-item">
+                <span>🔄 OAuth回调页面</span>
+                <a href="/callback/" target="_blank">
+                    回调页面
+                </a>
+            </div>
+            
+            <div class="link-item">
+                <span>📋 项目源码</span>
+                <a href="https://github.com/YOUR_USERNAME/tesla-api-keys" target="_blank">
+                    GitHub仓库
+                </a>
+            </div>
+        </div>
+        
+        <div class="links">
+            <h3>📖 使用说明</h3>
+            <p><strong>在config.py中配置：</strong></p>
+            <pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; overflow-x: auto;">
+tesla_redirect_domain = "YOUR_USERNAME.github.io"
+tesla_redirect_uri = "https://YOUR_USERNAME.github.io/tesla-api-keys/callback/"</pre>
+        </div>
+        
+        <div class="footer">
+            <p>🔒 此服务器只托管公钥，私钥始终保密</p>
+            <p><small>由GitHub Pages提供托管支持</small></p>
+        </div>
+    </div>
+
+    <script>
+        // 检查公钥文件是否存在
+        async function checkPublicKey() {
+            const statusDiv = document.getElementById('status');
+            
+            try {
+                const response = await fetch('/.well-known/appspecific/com.tesla.3p.public-key.pem');
+                
+                if (response.ok) {
+                    const content = await response.text();
+                    if (content.includes('BEGIN PUBLIC KEY')) {
+                        statusDiv.innerHTML = `
+                            <p style="color: #4caf50;">✅ 公钥文件已就绪</p>
+                            <small>文件大小: ${content.length} 字节</small>
+                        `;
+                    } else {
+                        statusDiv.innerHTML = `
+                            <p style="color: #ff9800;">⚠️ 公钥文件格式可能不正确</p>
+                        `;
+                    }
+                } else {
+                    statusDiv.innerHTML = `
+                        <p style="color: #f44336;">❌ 公钥文件未找到</p>
+                        <small>请确保已上传 com.tesla.3p.public-key.pem 文件</small>
+                    `;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <p style="color: #f44336;">❌ 无法检查公钥状态</p>
+                    <small>错误: ${error.message}</small>
+                `;
+            }
+        }
+        
+        // 页面加载后检查公钥
+        document.addEventListener('DOMContentLoaded', checkPublicKey);
+    </script>
+</body>
+</html>
